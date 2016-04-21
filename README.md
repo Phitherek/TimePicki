@@ -44,6 +44,25 @@ if you need to know about timepicki features and options to [Click here](http://
 
 ### Download [Timepicki zip archive](https://github.com/senthilraj/TimePicki/archive/master.zip)
 
+## Time constraints
+
+This modified version of TimePicki includes support for arbitrary time constraints. You can enable them like any other options of TimePicki. This feature is INDEPENDENT from the minimum and maximum hour option and is applied over it. These constraints have to be written in 24-hour format. Any change that violates these constraints is either increased/reduced to the constraint value or, in case of stepping the time up/down, not applied at all. To enable the any of those constraints, follow the example below.
+
+```javascript
+    $('#object-selector').timepicki({min_time_constraint: "9:00"});
+    $('#object-selector').timepicki({max_time_constraint: "17:45"});
+```
+
+To disable any of the constraints, simply set it to null.
+
+```javascript
+    $('#object-selector').timepicki({min_time_constraint: null});
+    $('#object-selector').timepicki({max_time_constraint: null});
+```
+
+Have fun!
+
+Phitherek_ (phitherek@gmail.com) - author of the feature.
 
 About me
 ========
