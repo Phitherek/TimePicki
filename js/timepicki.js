@@ -223,6 +223,13 @@
 					 }
 				 }
 
+				if(tim < 10) {
+					tim = "0" + tim;
+				}
+				if(mini < 10) {
+					mini = "0" + mini;
+				}
+
 				if (tim.length !== 0 && mini.length !== 0 && (!settings.show_meridian || meri.length !== 0)) {
 					// store the value so we can set the initial value
 					// next time the picker is opened
@@ -331,11 +338,7 @@
 					ele_next.find(".mi_tx input").val(mi);
 				}
 				if(settings.show_meridian){
-					if (mer < 10) {
-						ele_next.find(".mer_tx input").val("0" + mer);
-					} else {
-						ele_next.find(".mer_tx input").val(mer);
-					}
+					ele_next.find(".mer_tx input").val(mer);
 				}
 			}
 
