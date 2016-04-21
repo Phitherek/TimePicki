@@ -25,7 +25,9 @@
 			overflow_minutes: false,
 			disable_keyboard_mobile: false,
 			reset: false,
-			on_change: null
+			on_change: null,
+			min_time_constraint: null,
+			max_time_constraint: null
 		};
 
 		var settings = $.extend({}, defaults, options);
@@ -172,15 +174,55 @@
 				return $.contains(ele_par[0], jquery_element[0]) || ele_par.is(jquery_element);
 			}
 
+			// validate given value against time constraints, if any, and return the correct value
+			function validate_against_time_constraints(value) {
+				var correct_value = value;
+				if(settings.min_time_constraint != null) {
+					var split_value = correct_value.split(":");
+					var split_constraint = settings.min_time_constraint.split(":");
+					if((Number(split_value[0]) < Number(split_constraint[0])) || ((Number(split_value[0]) == Number(split_constraint[0])) && Number(split_value[1]) < Number(split_constraint[1]))) {
+						correct_value = settings.min_time_constraint;
+					}
+				}
+				if(settings.max_time_constraint != null) {
+					var split_value = correct_value.split(":");
+					var split_constraint = settings.max_time_constraint.split(":");
+					if((Number(split_value[0]) > Number(split_constraint[0])) || ((Number(split_value[0]) == Number(split_constraint[0])) && Number(split_value[1]) > Number(split_constraint[1]))) {
+						correct_value = settings.max_time_constraint;
+					}
+				}
+				return correct_value;
+			}
+
 			function set_value(event, close) {
 				// use input values to set the time
+				var raw_val = null;
 				var tim = ele_next.find(".ti_tx input").val();
 				var mini = ele_next.find(".mi_tx input").val();
 				var meri = "";
 				if(settings.show_meridian){
 					meri = ele_next.find(".mer_tx input").val();
 				}
-				
+
+				// Validate value against time constraints
+
+				raw_val = (settings.show_meridian && meri == 'PM') ? (Number(tim) + 12).toString() : tim;
+				raw_val += ':';
+				raw_val += mini;
+
+				var correct_value = validate_against_time_constraints(raw_val).split(':');
+
+				tim = correct_value[0];
+				mini = correct_value[1];
+				 if(settings.show_meridian) {
+					 if((Number(tim) > 12) || ((Number(tim) == 12) && (Number(mini) > 0))) {
+						 tim = (Number(tim) - 12).toString();
+						 meri = 'PM';
+					 } else {
+						 meri = 'AM';
+					 }
+				 }
+
 				if (tim.length !== 0 && mini.length !== 0 && (!settings.show_meridian || meri.length !== 0)) {
 					// store the value so we can set the initial value
 					// next time the picker is opened
@@ -231,7 +273,7 @@
 			}
 
 			function set_date(start_time) {
-				var d, ti, mi, mer;
+				var d, ti, mi, mer, raw_val;
 
 				// if a value was already picked we will remember that value
 				if (ele.is('[data-timepicki-tim]')) {
@@ -256,6 +298,25 @@
 					if (12 < ti  && settings.show_meridian) {
 						ti -= 12;
 						mer = "PM";
+					}
+				}
+
+				// Validate value against time constraints
+
+				raw_val = (settings.show_meridian && mer == 'PM') ? (Number(ti) + 12).toString() : ti;
+				raw_val += ':';
+				raw_val += mi;
+
+				var correct_value = validate_against_time_constraints(raw_val).split(':');
+
+				ti = correct_value[0];
+				mi = correct_value[1];
+				if(settings.show_meridian) {
+					if((Number(ti) > 12) || ((Number(ti) == 12) && (Number(mi) > 0))) {
+						ti = (Number(ti) - 12).toString();
+						mer = 'PM';
+					} else {
+						mer = 'AM';
 					}
 				}
 
@@ -284,40 +345,42 @@
 				var ele_st = Number(settings.min_hour_value);
 				var ele_en = Number(settings.max_hour_value);
 				var step_size = Number(settings.step_size_hours);
+				var updated_time = cur_time;
 				if ((cur_ele && cur_ele.hasClass('action-next')) || direction === 'next') {
 					if (cur_time + step_size > ele_en) {
-						var min_value = ele_st;
-						if (min_value < 10) {
-							min_value = '0' + min_value;
-						} else {
-							min_value = String(min_value);
-						}
-						ele_next.find("." + cur_cli + " .ti_tx input").val(min_value);
+						updated_time = ele_st;
 					} else {
 						cur_time = cur_time + step_size;
-						if (cur_time < 10) {
-							cur_time = "0" + cur_time;
-						}
-						ele_next.find("." + cur_cli + " .ti_tx input").val(cur_time);
+						updated_time = cur_time;
 					}
 				} else if ((cur_ele && cur_ele.hasClass('action-prev')) || direction === 'prev') {
-					var minValue = Number(settings.min_hour_value)
+					var minValue = Number(settings.min_hour_value);
 					if (cur_time - step_size < minValue) {
-						var max_value = ele_en;
-						if (max_value < 10) {
-							max_value = '0' + max_value;
-						} else {
-							max_value = String(max_value);
-						}
-						ele_next.find("." + cur_cli + " .ti_tx input").val(max_value);
+						updated_time = ele_en;
 					} else {
 						cur_time = cur_time - step_size;
-						if (cur_time < 10) {
-							cur_time = "0" + cur_time;
-						}
-						ele_next.find("." + cur_cli + " .ti_tx input").val(cur_time);
+						updated_time = cur_time;
 					}
 				}
+				// Check new time against constraints
+				var cur_mins = Number(ele_next.find("." + cur_cli + " .mi_tx input").val());
+				var cur_mer = ele_next.find("." + cur_cli + " .mer_tx input").val();
+
+				var raw_val = null;
+
+				raw_val = (settings.show_meridian && cur_mer == 'PM') ? (Number(updated_time) + 12).toString() : updated_time;
+				raw_val += ':';
+				raw_val += cur_mins;
+
+				var correct_value = validate_against_time_constraints(raw_val).split(':');
+
+				updated_time = correct_value[0];
+
+				if (updated_time < 10) {
+					updated_time = "0" + updated_time;
+				}
+
+				ele_next.find("." + cur_cli + " .ti_tx input").val(updated_time);
 			}
 
 			function change_mins(cur_ele, direction) {
@@ -326,35 +389,53 @@
 				var ele_st = 0;
 				var ele_en = 59;
 				var step_size = Number(settings.step_size_minutes);
+				var updated_mins = cur_mins;
+				var overflow = null;
 				if ((cur_ele && cur_ele.hasClass('action-next')) || direction === 'next') {
 					if (cur_mins + step_size > ele_en) {
-						ele_next.find("." + cur_cli + " .mi_tx input").val("00");
-						if(settings.overflow_minutes){
-							change_time(null, 'next');
-						}
+						updated_mins = '0';
+						overflow = 'next';
 					} else {
 						cur_mins = cur_mins + step_size;
-						if (cur_mins < 10) {
-							ele_next.find("." + cur_cli + " .mi_tx input").val("0" + cur_mins);
-						} else {
-							ele_next.find("." + cur_cli + " .mi_tx input").val(cur_mins);
-						}
+						updated_mins = cur_mins;
 					}
 				} else if ((cur_ele && cur_ele.hasClass('action-prev')) || direction === 'prev') {
 					if (cur_mins - step_size <= -1) {
-						ele_next.find("." + cur_cli + " .mi_tx input").val(ele_en + 1 - step_size);
-						if(settings.overflow_minutes){
-							change_time(null, 'prev');
-						}
+						updated_mins = ele_en + 1 - step_size;
+						overflow = 'prev';
 					} else {
 						cur_mins = cur_mins - step_size;
-						if (cur_mins < 10) {
-							ele_next.find("." + cur_cli + " .mi_tx input").val("0" + cur_mins);
-						} else {
-							ele_next.find("." + cur_cli + " .mi_tx input").val(cur_mins);
-						}
+						updated_mins = cur_mins;
 					}
 				}
+				// Check new time against constraints
+				var cur_time = Number(ele_next.find("." + cur_cli + " .ti_tx input").val());
+				var cur_mer = ele_next.find("." + cur_cli + " .mer_tx input").val();
+				var updated_time = cur_time;
+				if(overflow == 'next' && settings.overflow_minutes) {
+					updated_time = updated_time + 1;
+				} else if(overflow == 'prev' && settings.overflow_minutes) {
+					updated_time = updated_time - 1;
+				}
+
+				var raw_val = null;
+
+				raw_val = (settings.show_meridian && cur_mer == 'PM') ? (Number(updated_time) + 12).toString() : updated_time;
+				raw_val += ':';
+				raw_val += updated_mins;
+
+				var correct_value = validate_against_time_constraints(raw_val).split(':');
+
+				updated_mins = correct_value[1];
+				if(correct_value[0] == updated_time) {
+					if(overflow != null && settings.overflow_minutes) {
+						change_time(null, overflow)
+					}
+				}
+				if(updated_mins > 10) {
+					updated_mins = "0" + updated_mins;
+				}
+				ele_next.find("." + cur_cli + " .mi_tx input").val(updated_mins);
 			}
 
 			function change_meri(cur_ele, direction) {
@@ -363,19 +444,36 @@
 				var ele_en = 1;
 				var cur_mer = null;
 				cur_mer = ele_next.find("." + cur_cli + " .mer_tx input").val();
+				var updated_mer = cur_mer;
 				if ((cur_ele && cur_ele.hasClass('action-next')) || direction === 'next') {
 					if (cur_mer == "AM") {
-						ele_next.find("." + cur_cli + " .mer_tx input").val("PM");
+						updated_mer = "PM";
 					} else {
-						ele_next.find("." + cur_cli + " .mer_tx input").val("AM");
+						updated_mer = "AM";
 					}
 				} else if ((cur_ele && cur_ele.hasClass('action-prev')) || direction === 'prev') {
 					if (cur_mer == "AM") {
-						ele_next.find("." + cur_cli + " .mer_tx input").val("PM");
+						updated_mer = "PM";
 					} else {
-						ele_next.find("." + cur_cli + " .mer_tx input").val("AM");
+						updated_mer = "AM";
 					}
 				}
+				// Check new time against constraints
+				var cur_time = Number(ele_next.find("." + cur_cli + " .ti_tx input").val());
+				var cur_mins = Number(ele_next.find("." + cur_cli + " .mi_tx input").val());
+
+				var raw_val = null;
+
+				raw_val = (settings.show_meridian && updated_mer == 'PM') ? (Number(cur_time) + 12).toString() : cur_time;
+				raw_val += ':';
+				raw_val += cur_mins;
+
+				var correct_value = validate_against_time_constraints(raw_val).split(':');
+				if(correct_value[0] == cur_time) {
+					updated_mer = cur_mer;
+				}
+
+				ele_next.find("." + cur_cli + " .mer_tx input").val(updated_mer);
 			}
 
 			// handle clicking on the arrow icons
