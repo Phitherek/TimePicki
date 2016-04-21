@@ -376,6 +376,10 @@
 
 				updated_time = correct_value[0];
 
+				if(settings.show_meridian && updated_time > 12) {
+					updated_time = (Number(updated_time)-12).to_s
+				}
+
 				if (updated_time < 10) {
 					updated_time = "0" + updated_time;
 				}
