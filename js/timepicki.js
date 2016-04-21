@@ -180,14 +180,14 @@
 				if(settings.min_time_constraint != null) {
 					var split_value = correct_value.split(":");
 					var split_constraint = settings.min_time_constraint.split(":");
-					if((Number(split_value[0]) <= Number(split_constraint[0])) || ((Number(split_value[0]) == Number(split_constraint[0])) && Number(split_value[1]) <= Number(split_constraint[1]))) {
+					if((Number(split_value[0]) < Number(split_constraint[0])) || ((Number(split_value[0]) == Number(split_constraint[0])) && Number(split_value[1]) < Number(split_constraint[1]))) {
 						correct_value = settings.min_time_constraint;
 					}
 				}
 				if(settings.max_time_constraint != null) {
 					var split_value = correct_value.split(":");
 					var split_constraint = settings.max_time_constraint.split(":");
-					if((Number(split_value[0]) >= Number(split_constraint[0])) || ((Number(split_value[0]) == Number(split_constraint[0])) && Number(split_value[1]) >= Number(split_constraint[1]))) {
+					if((Number(split_value[0]) > Number(split_constraint[0])) || ((Number(split_value[0]) == Number(split_constraint[0])) && Number(split_value[1]) > Number(split_constraint[1]))) {
 						correct_value = settings.max_time_constraint;
 					}
 				}
