@@ -432,7 +432,7 @@
 						change_time(null, overflow)
 					}
 				}
-				if(updated_mins > 10) {
+				if(updated_mins < 10) {
 					updated_mins = "0" + updated_mins;
 				}
 				ele_next.find("." + cur_cli + " .mi_tx input").val(updated_mins);
