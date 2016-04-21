@@ -206,7 +206,7 @@
 
 				// Validate value against time constraints
 
-				raw_val = (settings.show_meridian && meri == 'PM') ? (Number(tim) + 12).toString() : tim;
+				raw_val = (settings.show_meridian && meri == 'PM') ? (Number(tim) + 12).toString() : Number(tim).toString();
 				raw_val += ':';
 				raw_val += mini;
 
