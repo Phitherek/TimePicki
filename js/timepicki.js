@@ -377,7 +377,7 @@
 				updated_time = correct_value[0];
 
 				if(settings.show_meridian && updated_time > 12) {
-					updated_time = (Number(updated_time)-12).to_s
+					updated_time = (Number(updated_time)-12).toString()
 				}
 
 				if (updated_time < 10) {
