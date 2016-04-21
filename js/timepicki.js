@@ -226,9 +226,6 @@
 				if(tim < 10) {
 					tim = "0" + tim;
 				}
-				if(mini < 10) {
-					mini = "0" + mini;
-				}
 
 				if (tim.length !== 0 && mini.length !== 0 && (!settings.show_meridian || meri.length !== 0)) {
 					// store the value so we can set the initial value
