@@ -195,27 +195,27 @@
 			}
 
 			function convert_from_meridian(h, m, mer) {
-				var ch = h;
+				var ch = h.toString();
 				if(ch == 12 && mer == 'AM') {
 					ch = "0";
 				} else if(mer == 'PM') {
 					ch = (Number(ch)+12).toString();
 				}
-				return [ch, m];
+				return [ch.toString(), m.toString()];
 			}
 
 			function convert_to_meridian(h, m) {
 				var cmer = 'AM';
-				var ch = h;
+				var ch = h.toString();
 				if(ch > 11) {
 					cmer = 'PM';
 				}
 				if(cmer == 'AM' && h == 0) {
-					ch = 12;
+					ch = "12";
 				} else if(cmer == 'PM' && h != 12) {
-					ch = ch - 12;
+					ch = (Number(ch) - 12).toString();
 				}
-				return [ch, m, cmer];
+				return [ch.toString(), m.toString(), cmer];
 			}
 
 			function set_value(event, close) {
@@ -388,8 +388,8 @@
 					}
 				}
 				// Check new time against constraints
-				var cur_mins = Number(ele_next.find("." + cur_cli + " .mi_tx input").val());
-				var cur_mer = ele_next.find("." + cur_cli + " .mer_tx input").val();
+				var cur_mins = Number(ele_next.find(".mins .mi_tx input").val());
+				var cur_mer = ele_next.find(".meridian .mer_tx input").val();
 
 				var raw_val = null;
 
@@ -442,8 +442,8 @@
 					}
 				}
 				// Check new time against constraints
-				var cur_time = Number(ele_next.find("." + cur_cli + " .ti_tx input").val());
-				var cur_mer = ele_next.find("." + cur_cli + " .mer_tx input").val();
+				var cur_time = Number(ele_next.find(".time .ti_tx input").val());
+				var cur_mer = ele_next.find(".meridian .mer_tx input").val();
 				var updated_time = cur_time;
 				if(overflow == 'next' && settings.overflow_minutes) {
 					updated_time = updated_time + 1;
@@ -503,8 +503,8 @@
 					}
 				}
 				// Check new time against constraints
-				var cur_time = Number(ele_next.find("." + cur_cli + " .ti_tx input").val());
-				var cur_mins = Number(ele_next.find("." + cur_cli + " .mi_tx input").val());
+				var cur_time = Number(ele_next.find(".time .ti_tx input").val());
+				var cur_mins = Number(ele_next.find(".mins .mi_tx input").val());
 
 				var raw_val = null;
 
