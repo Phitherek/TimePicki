@@ -60,6 +60,10 @@ To disable any of the constraints, simply set it to null.
     $('#object-selector').timepicki({max_time_constraint: null});
 ```
 
+### A word of warning
+
+The changes make direct keyboard input really messed up when time constraints are enabled. However, the values entered will be validated and the output as well as the inputs after closing and opening TimePicki again will remain correct. Bear in mind that using the arrow controls is the preferred method of inputting time in this version.
+
 Have fun!
 
 Phitherek_ (phitherek@gmail.com) - author of the feature.
