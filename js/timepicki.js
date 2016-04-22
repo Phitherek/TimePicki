@@ -1,4 +1,4 @@
-/* 
+/*
  * Author: @senthil2rajan
  * plugin: timepicker
  * website: senthilraj.github.io/Timepicki
@@ -77,27 +77,27 @@
 			var ele_next = $(this).next(".timepicker_wrap");
 			var ele_next_all_child = ele_next.find("div");
 			var inputs = ele_par.find('input');
-			
+
 			$('.reset_time').on("click", function(event) {
 				ele.val("");
 				close_timepicki();
-			});		
+			});
 			$(".timepicki-input").keydown( function(keyevent){
 					var len = $(this).val().length;
 
 					// Allow: backspace, delete, tab, escape, enter and .
 					if ($.inArray(keyevent.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-					     // Allow: Ctrl+A
-					    (keyevent.keyCode == 65 && keyevent.ctrlKey === true) || 
-					     // Allow: home, end, left, right
-					    (keyevent.keyCode >= 35 && keyevent.keyCode <= 39)) {
+							 // Allow: Ctrl+A
+							(keyevent.keyCode == 65 && keyevent.ctrlKey === true) ||
+							 // Allow: home, end, left, right
+							(keyevent.keyCode >= 35 && keyevent.keyCode <= 39)) {
 						 // let it happen, don't do anything
 						 return;
 					}
 					// Ensure that it is a number and stop the keypress
-					if ((keyevent.shiftKey || (keyevent.keyCode < 48 || keyevent.keyCode > 57)) && 
+					if ((keyevent.shiftKey || (keyevent.keyCode < 48 || keyevent.keyCode > 57)) &&
 					(keyevent.keyCode < 96 || keyevent.keyCode > 105) || len==2 ) {
-					    keyevent.preventDefault();
+							keyevent.preventDefault();
 					}
 
 			});
@@ -109,7 +109,7 @@
 						set_value(event, !is_element_in_timepicki($(event.target)));
 					} else {
 						var ele_lef =  0;
-						
+
 						ele_next.css({
 							"top": ele_hei + "px",
 							"left": ele_lef + "px"
@@ -194,6 +194,30 @@
 				return correct_value;
 			}
 
+			function convert_from_meridian(h, m, mer) {
+				var ch = h;
+				if(ch == 12 && mer == 'AM') {
+					ch = "0";
+				} else if(mer == 'PM') {
+					ch = (Number(ch)+12).toString();
+				}
+				return [ch, m];
+			}
+
+			function convert_to_meridian(h, m) {
+				var cmer = 'AM';
+				var ch = h;
+				if(ch > 11) {
+					cmer = 'PM';
+				}
+				if(cmer == 'AM' && h == 0) {
+					ch = 12;
+				} else if(cmer == 'PM' && h != 12) {
+					ch = ch - 12;
+				}
+				return [ch, m, cmer];
+			}
+
 			function set_value(event, close) {
 				// use input values to set the time
 				var raw_val = null;
@@ -205,22 +229,22 @@
 				}
 
 				// Validate value against time constraints
-
-				raw_val = (settings.show_meridian && meri == 'PM') ? (Number(tim) + 12).toString() : Number(tim).toString();
-				raw_val += ':';
-				raw_val += mini;
+				if(settings.show_meridian) {
+					var raw_val_split = convert_from_meridian(tim, mini, meri);
+					raw_val = raw_val_split.join(':');
+				} else {
+					raw_val = tim + ':' + mini;
+				}
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
 
 				tim = correct_value[0];
 				mini = correct_value[1];
 				 if(settings.show_meridian) {
-					 if((Number(tim) > 12) || ((Number(tim) == 12) && (Number(mini) > 0))) {
-						 tim = (Number(tim) - 12).toString();
-						 meri = 'PM';
-					 } else {
-						 meri = 'AM';
-					 }
+					 var meri_val = convert_to_meridian(tim, mini);
+					 tim = meri_val[0];
+					 mini = meri_val[1];
+					 meri = meri_val[2];
 				 }
 
 				if(tim < 10) {
@@ -232,7 +256,7 @@
 					// next time the picker is opened
 					ele.attr('data-timepicki-tim', tim);
 					ele.attr('data-timepicki-mini', mini);
-					
+
 					if(settings.show_meridian){
 						ele.attr('data-timepicki-meri', meri);
 						// set the formatted value
@@ -307,21 +331,22 @@
 
 				// Validate value against time constraints
 
-				raw_val = (settings.show_meridian && mer == 'PM') ? (Number(ti) + 12).toString() : ti;
-				raw_val += ':';
-				raw_val += mi;
+				if(settings.show_meridian) {
+					var raw_val_split = convert_from_meridian(ti, mi, mer);
+					raw_val = raw_val_split.join(':');
+				} else {
+					raw_val = ti + ':' + mi;
+				}
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
 
 				ti = correct_value[0];
 				mi = correct_value[1];
 				if(settings.show_meridian) {
-					if((Number(ti) > 12) || ((Number(ti) == 12) && (Number(mi) > 0))) {
-						ti = (Number(ti) - 12).toString();
-						mer = 'PM';
-					} else {
-						mer = 'AM';
-					}
+					var meri_val = convert_to_meridian(ti, mi);
+					ti = meri_val[0];
+					mi = meri_val[1];
+					mer = meri_val[2];
 				}
 
 				if (ti < 10) {
@@ -368,16 +393,20 @@
 
 				var raw_val = null;
 
-				raw_val = (settings.show_meridian && cur_mer == 'PM') ? (Number(updated_time) + 12).toString() : updated_time;
-				raw_val += ':';
-				raw_val += cur_mins;
+				if(settings.show_meridian) {
+					var raw_val_split = convert_from_meridian(updated_time, cur_mins, cur_mer);
+					raw_val = raw_val_split.join(':');
+				} else {
+					raw_val = updated_time + ':' + cur_mins;
+				}
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
 
 				updated_time = correct_value[0];
 
-				if(settings.show_meridian && updated_time > 12) {
-					updated_time = (Number(updated_time)-12).toString()
+				if(settings.show_meridian) {
+					var meri_val = convert_to_meridian(updated_time, cur_mins);
+					updated_time = meri_val[0];
 				}
 
 				if (updated_time < 10) {
@@ -424,18 +453,29 @@
 
 				var raw_val = null;
 
-				raw_val = (settings.show_meridian && cur_mer == 'PM') ? (Number(updated_time) + 12).toString() : updated_time;
-				raw_val += ':';
-				raw_val += updated_mins;
+				if(settings.show_meridian) {
+					var raw_val_split = convert_from_meridian(updated_time, updated_mins, cur_mer);
+					raw_val = raw_val_split.join(':');
+				} else {
+					raw_val = updated_time + ':' + updated_mins;
+				}
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
-
 				updated_mins = correct_value[1];
-				if(correct_value[0] == updated_time) {
+				var new_updated_time = correct_value[0];
+
+				if(settings.show_meridian) {
+					var meri_val = convert_to_meridian(updated_time, updated_mins);
+					new_updated_time = meri_val[0];
+					updated_mins = meri_val[1];
+				}
+
+				if(updated_time != new_updated_time) {
 					if(overflow != null && settings.overflow_minutes) {
-						change_time(null, overflow)
+						change_time(null, overflow);
 					}
 				}
+
 				if(updated_mins < 10) {
 					updated_mins = "0" + updated_mins;
 				}
@@ -468,13 +508,18 @@
 
 				var raw_val = null;
 
-				raw_val = (settings.show_meridian && updated_mer == 'PM') ? (Number(cur_time) + 12).toString() : cur_time;
-				raw_val += ':';
-				raw_val += cur_mins;
+				if(settings.show_meridian) {
+					var raw_val_split = convert_from_meridian(cur_time, cur_mins, updated_mer);
+					raw_val = raw_val_split.join(':');
+				} else {
+					raw_val = cur_time + ':' + cur_mins;
+				}
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
-				if(correct_value[0] == cur_time) {
-					updated_mer = cur_mer;
+
+				if(settings.show_meridian) {
+					var meri_val = convert_to_meridian(correct_value[0], correct_value[1]);
+					updated_mer = meri_val[2];
 				}
 
 				ele_next.find("." + cur_cli + " .mer_tx input").val(updated_mer);
