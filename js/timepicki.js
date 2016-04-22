@@ -238,8 +238,8 @@
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
 
-				tim = correct_value[0];
-				mini = correct_value[1];
+				tim = Number(correct_value[0]).toString();
+				mini = Number(correct_value[1]).toString();
 				 if(settings.show_meridian) {
 					 var meri_val = convert_to_meridian(tim, mini);
 					 tim = meri_val[0];
@@ -249,6 +249,9 @@
 
 				if(tim < 10) {
 					tim = "0" + tim;
+				}
+				if(mini < 10) {
+					mini = "0" + mini;
 				}
 
 				if (tim.length !== 0 && mini.length !== 0 && (!settings.show_meridian || meri.length !== 0)) {
@@ -340,8 +343,8 @@
 
 				var correct_value = validate_against_time_constraints(raw_val).split(':');
 
-				ti = correct_value[0];
-				mi = correct_value[1];
+				ti = Number(correct_value[0]).toString();
+				mi = Number(correct_value[1]).toString();
 				if(settings.show_meridian) {
 					var meri_val = convert_to_meridian(ti, mi);
 					ti = meri_val[0];
