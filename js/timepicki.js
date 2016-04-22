@@ -201,7 +201,7 @@
 				} else if(mer == 'PM') {
 					ch = (Number(ch)+12).toString();
 				}
-				return [ch.toString(), m.toString()];
+				return [Number(ch).toString(), Number(m).toString()];
 			}
 
 			function convert_to_meridian(h, m) {
@@ -215,7 +215,7 @@
 				} else if(cmer == 'PM' && h != 12) {
 					ch = (Number(ch) - 12).toString();
 				}
-				return [ch.toString(), m.toString(), cmer];
+				return [Number(ch).toString(), Number(m).toString(), cmer];
 			}
 
 			function set_value(event, close) {
