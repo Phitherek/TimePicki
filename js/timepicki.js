@@ -198,7 +198,7 @@
 					var ch = h.toString();
 					if(ch == 12 && mer == 'AM') {
 						ch = "0";
-					} else if(mer == 'PM') {
+					} else if(mer == 'PM' && h != 12) {
 						ch = (Number(ch)+12).toString();
 					}
 					return [Number(ch).toString(), Number(m).toString()];
